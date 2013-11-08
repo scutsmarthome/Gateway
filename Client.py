@@ -16,7 +16,7 @@ def InitSocket():
     soc.connect((host,port))
     return soc
 class SockettoSerial(threading.Thread):
-    def __init__(self,soc):
+    def __init__(self):
         threading.Thread.__init__(self)
         self.thread_stop = False
     def run(self): #Overwrite run() method, put what you want the thread do here
@@ -30,7 +30,7 @@ class SockettoSerial(threading.Thread):
     def stop(self):
         self.thread_stop = True
 class SerialtoScoket(threading.Thread):
-    def __init__(self,ser):
+    def __init__(self):
         threading.Thread.__init__(self)
         self.thread_stop = False
     def run(self):
@@ -47,8 +47,8 @@ class SerialtoScoket(threading.Thread):
 if __name__ == '__main__':
     ser=InitSerial()
     soc=InitSocket()
-    thread1=SockettoSerial(ser)
-    thread2=SerialtoScoket(soc)
+    thread1=SockettoSerial()
+    thread2=SerialtoScoket()
     thread1.start()
     thread2.start()
     while True:
