@@ -52,6 +52,7 @@ class SerialtoScoket(threading.Thread):
 if __name__ == '__main__':
     ser=InitSerial()
     soc=InitSocket()
+    client,ipaddr=soc.accept()
     thread1=SerialtoScoket()
     thread2=SockettoSerial()
     thread1.start()
