@@ -24,7 +24,7 @@ class SockettoSerial(threading.Thread):
         while not self.thread_stop:
             ser.flushOutput()
             client,ipaddr=soc.accept()
-            print "Got a connect from %s"  %str(ipaddr)
+            print "Got a Socconnect from %s"  %str(ipaddr)
             soc_msg=client.recv(1024)
             print soc_msg
             if len(soc_msg)!=0:
@@ -41,9 +41,11 @@ class SerialtoScoket(threading.Thread):
     def run(self):
         while not self.thread_stop:
             client,ipaddr=soc.accept()
-            ser_msg = ser.readline()
-            print "Got a connect from %s"  %str(ipaddr)
-            if len(ser_msg)!=0:  
+            print "Got a Serconnect from %s"  %str(ipaddr)
+            ser_msg = ser.readline() 
+            ser.flushOutput()          
+            print ser_msg                   
+            if len(ser_msg)!=0:
                 client.send(ser_msg)
                 print ser_msg
                 client.close()
@@ -52,7 +54,6 @@ class SerialtoScoket(threading.Thread):
 if __name__ == '__main__':
     ser=InitSerial()
     soc=InitSocket()
-    client,ipaddr=soc.accept()
     thread1=SerialtoScoket()
     thread2=SockettoSerial()
     thread1.start()
