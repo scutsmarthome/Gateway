@@ -20,8 +20,10 @@ class SockettoSerial(threading.Thread):
         threading.Thread.__init__(self)
         self.thread_stop = False
     def run(self): #Overwrite run() method, put what you want the thread do here
+        soc = InitSocket()
+        ser = InitSerial()
         while not self.thread_stop:
-            ser.flushOutput()
+            soc = InitSocket()
             soc_msg = soc.recv(1024)
             if len(soc_msg)!=0:
                 if soc_msg[-1]=='\n':
@@ -34,6 +36,7 @@ class SerialtoScoket(threading.Thread):
         threading.Thread.__init__(self)
         self.thread_stop = False
     def run(self):
+        ser=InitSerial()
         while not self.thread_stop:
             ser.flushInput()
             ser_msg = ser.readline()
@@ -45,8 +48,6 @@ class SerialtoScoket(threading.Thread):
     def stop(self):
         self.thread_stop = True
 if __name__ == '__main__':
-    ser=InitSerial()
-    soc=InitSocket()
     thread1=SockettoSerial()
     thread2=SerialtoScoket()
     thread1.start()
@@ -54,8 +55,4 @@ if __name__ == '__main__':
     while True:
         time.sleep(10)
     thread1.stop()
-    thread2.stop()
-        
-    
-    
-    
+    thread2.stop()   
