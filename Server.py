@@ -4,15 +4,32 @@ import threading
 
 def InitSerial():
     dev0="/dev/ttyUSB0"
+    dev1="/dev/ttyUSB1"
     baud = 9600
-    ser=serial.Serial(dev0,baud)
+    while(True):
+        try:
+            ser=serial.Serial(dev0,baud)
+        except:
+            try:
+                ser=serial.Serial(dev1,baud)
+            except:
+                continue
+        break
     return ser
 def InitSocket():
     host = "192.168.1.1"
     port = 1235
-    soc=socket.socket(socket.AF_INET,socket.SOCK_STREAM,0)
-    soc.bind((host,port))
-    soc.listen(1)
+    while(True):
+        try:
+            soc=socket.socket(socket.AF_INET,socket.SOCK_STREAM,0)
+        except:
+            continue
+        try:
+            soc.bind((host,port))
+        except:
+            continue
+        soc.listen(1)
+        break
     return soc
 def SockettoSerial():
     while True:
@@ -45,4 +62,4 @@ if __name__ == '__main__':
     thread1=threading.Thread(target=SerialtoScoket)
     thread2=threading.Thread(target=SockettoSerial)
     thread1.start()
-    thread2.start()
+    thread2.start()   

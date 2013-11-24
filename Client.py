@@ -6,7 +6,7 @@ def InitSerial():
     dev0="/dev/ttyUSB0"
     dev1="/dev/ttyUSB1"
     baud = 9600
-    while(True):
+    while True:
         try:
             ser=serial.Serial(dev0,baud)
         except:
@@ -19,7 +19,7 @@ def InitSerial():
 def InitSocket():
     host = '192.168.1.20'
     port = 1235
-    while(True):
+    while True:
         try:
             soc=socket.socket(socket.AF_INET,socket.SOCK_STREAM,0)
         except socket.error:
@@ -41,7 +41,7 @@ def SockettoSerial():
         if len(soc_msg)!=0:
             if soc_msg[-1]=='\n':
                 print soc_msg
-                while(True):
+                while True:
                     try:
                         ser.write(soc_msg)
                     except:
@@ -55,7 +55,7 @@ def SerialtoScoket():
         if len(ser_msg)!=0:
             print ser_msg
             soc=InitSocket()
-            while(True):
+            while True:
                 try:
                     soc.send(ser_msg)
                 except:
