@@ -1,6 +1,7 @@
 import serial
 import socket
 import threading
+import time
 
 def InitSerial():
     dev0="/dev/ttyUSB0"
@@ -13,6 +14,8 @@ def InitSerial():
             try:
                 ser=serial.Serial(dev1,baud)
             except:
+                time.sleep(1)
+                print "Serial init error!\n"
                 continue
         break
     return ser
@@ -23,48 +26,67 @@ def InitSocket():
         try:
             soc=socket.socket(socket.AF_INET,socket.SOCK_STREAM,0)
         except socket.error:
+            soc=None
             continue
         try:
             soc.connect((host,port))
         except socket.error:
-            continue
-        except socket.timeout:
+            soc.close()
+            soc=None
             continue
         break
     return soc
+
+
+    
 def SockettoSerial():
-    soc = InitSocket()
-    ser = InitSerial()
     while True:
-        soc = InitSocket()
-        soc_msg = soc.recv(1024)
+        soc_msg=None
+        try:
+            soc_msg=soc.recv(1024)
+        except:
+            print "socket disconnected!\n"
+            soc.close()
+            return 0
         if len(soc_msg)!=0:
             if soc_msg[-1]=='\n':
                 print soc_msg
-                while True:
-                    try:
-                        ser.write(soc_msg)
-                    except:
-                        continue
-                    break
+                try:
+                    ser.write(soc_msg)
+                except serial.SerialException:
+                    soc.send("serial error!\n")
+                    print "close sockettoserial"
+                    return 0
+
 def SerialtoScoket():
-    ser=InitSerial()
     while True:
         ser.flushInput()
-        ser_msg = ser.readline()
+        ser_msg = None
+        try:
+            ser_msg = ser.readline()
+        except serial.SerialException:
+            soc.send("serial error\n")
+            print "close serialtosocket\n"
+            return 0
         if len(ser_msg)!=0:
             print ser_msg
-            soc=InitSocket()
-            while True:
-                try:
-                    soc.send(ser_msg)
-                except:
-                    continue
-                break
-            soc.close()
-                      
+            try:
+                soc.send(ser_msg)
+            except:
+                print "socket disconnected!\n"
+                soc.close()
+                return 0
+        
 if __name__ == '__main__':
-    thread1=threading.Thread(target=SockettoSerial)
-    thread2=threading.Thread(target=SerialtoScoket)
-    thread1.start()
-    thread2.start()
+    while True:
+        soc=InitSocket()
+        ser=InitSerial()
+        socth=threading.Thread(target=SockettoSerial)
+        serth=threading.Thread(target=SerialtoScoket)
+        socth.start()
+        serth.start()
+        while True:
+            if socth.isAlive()==False and serth.isAlive==False:
+                break
+                
+    
