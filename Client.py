@@ -7,7 +7,7 @@ soc_msg=""
 ser_msg=""
 
 def InitSerial():
-    print "Serial is initialling...."
+    print "Serial is initialling......"
     dev0="/dev/ttyUSB0"
     dev1="/dev/ttyUSB1"
     baud = 9600
@@ -26,8 +26,8 @@ def InitSerial():
     return ser
 def InitSocket():
     print "Socket is initialling...."
-    host = '192.168.1.235'
-    port = 8234
+    host = '192.168.1.20'
+    port = 1235
     while True:
         try:
             soc=socket.socket(socket.AF_INET,socket.SOCK_STREAM,0)
