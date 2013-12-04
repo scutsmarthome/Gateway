@@ -26,8 +26,8 @@ def InitSerial():
     return ser
 def InitSocket():
     print "Socket is initialling...."
-    host = '192.168.1.20'
-    port = 1235
+    host = '192.168.1.235'
+    port = 8234
     while True:
         try:
             soc=socket.socket(socket.AF_INET,socket.SOCK_STREAM,0)
