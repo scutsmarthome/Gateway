@@ -3,10 +3,14 @@ import socket
 import threading
 import time
 
+soc_msg=""
+ser_msg=""
+
 def InitSerial():
+    print "Serial is initialling...."
     dev0="/dev/ttyUSB0"
     dev1="/dev/ttyUSB1"
-    baud = 9600
+baud = 9600
     while True:
         try:
             ser=serial.Serial(dev0,baud)
@@ -15,11 +19,13 @@ def InitSerial():
                 ser=serial.Serial(dev1,baud)
             except:
                 time.sleep(1)
-                print "Serial init error!\n"
+                print "Serial inite error!"
                 continue
         break
+    print "SerialInit Success!"
     return ser
 def InitSocket():
+    print "Socket is initialling...."
     host = '192.168.1.20'
     port = 1235
     while True:
@@ -35,58 +41,87 @@ def InitSocket():
             soc=None
             continue
         break
+    print "SocketInit Success!"
     return soc
 
-
-    
-def SockettoSerial():
+def readSocket():
+    global soc_msg
+    soc_msg = ""
     while True:
-        soc_msg=None
         try:
             soc_msg=soc.recv(1024)
-        except:
-            print "socket disconnected!\n"
+        except socket.error:
             soc.close()
+            print "readSocket error!\n"
+            return 0
+def readSerial():
+    global ser_msg
+    ser_msg = ""
+    while True:
+        ser.flushInput()
+        try:
+            ser_msg = ser.readline()
+        except serial.SerialException:
+            soc.send("serial error\n")
+            print "readSerial error!\n"
+            return 0
+def writeSocket():
+    global ser_msg
+    while True:
+        if ReadSoc.isAlive()==False:
+            soc.close()
+            print "writeSocket error!\n"
+            return 0
+        if len(ser_msg)!=0:
+            if ser_msg[-1]=='\n':
+                print ser_msg
+                try:
+                    soc.send(ser_msg)
+                    ser_msg = ""
+                except:
+                    soc.close()
+                    print "writeSocket error!\n"
+                    return 0
+def writeSerial():
+    global soc_msg
+    while True:
+        if ReadSer.isAlive()==False:
+            print "writeSerial error!\n"
             return 0
         if len(soc_msg)!=0:
             if soc_msg[-1]=='\n':
                 print soc_msg
                 try:
                     ser.write(soc_msg)
+                    soc_msg = ""
                 except serial.SerialException:
                     soc.send("serial error!\n")
-                    print "close sockettoserial"
+                    print "writeSerial error!\n"
                     return 0
-
-def SerialtoScoket():
-    while True:
-        ser.flushInput()
-        ser_msg = None
-        try:
-            ser_msg = ser.readline()
-        except serial.SerialException:
-            soc.send("serial error\n")
-            print "close serialtosocket\n"
-            return 0
-        if len(ser_msg)!=0:
-            print ser_msg
-            try:
-                soc.send(ser_msg)
-            except:
-                print "socket disconnected!\n"
-                soc.close()
-                return 0
-        
 if __name__ == '__main__':
-    while True:
-        soc=InitSocket()
-        ser=InitSerial()
-        socth=threading.Thread(target=SockettoSerial)
-        serth=threading.Thread(target=SerialtoScoket)
-        socth.start()
-        serth.start()
+        ser = InitSerial()
+        WriteSer = threading.Thread(target = writeSerial)
+        ReadSer = threading.Thread(target = readSerial)  
+        ReadSer.start()
+        WriteSer.start()
+        soc = InitSocket()
+        ReadSoc = threading.Thread(target = readSocket)   
+        WriteSoc = threading.Thread(target = writeSocket)    
+        ReadSoc.start()
+        WriteSoc.start()
+        
         while True:
-            if socth.isAlive()==False and serth.isAlive==False:
-                break
+            if ReadSoc.isAlive()==False and WriteSoc.isAlive()==False:
+                soc = InitSocket()
+                ReadSoc = threading.Thread(target = readSocket)   
+                WriteSoc = threading.Thread(target = writeSocket)    
+                ReadSoc.start()
+                WriteSoc.start()
+            if WriteSer.isAlive()==False and WriteSer.isAlive()==False:
+                ser = InitSerial()
+                WriteSer = threading.Thread(target = writeSerial)
+                ReadSer = threading.Thread(target = readSerial)  
+                ReadSer.start()
+                WriteSer.start()
                 
-    
+                
