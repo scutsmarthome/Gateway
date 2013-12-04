@@ -10,7 +10,7 @@ def InitSerial():
     print "Serial is initialling...."
     dev0="/dev/ttyUSB0"
     dev1="/dev/ttyUSB1"
-baud = 9600
+    baud = 9600
     while True:
         try:
             ser=serial.Serial(dev0,baud)
