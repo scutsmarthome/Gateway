@@ -78,7 +78,7 @@ def writeSocket():
                 try:
                     soc.send(ser_msg)
                     ser_msg = ""
-                except:
+                except socket.error:
                     soc.close()
                     print "writeSocket error!\n"
                     return 0
@@ -111,13 +111,13 @@ if __name__ == '__main__':
         WriteSoc.start()
         
         while True:
-            if ReadSoc.isAlive() == False and WriteSoc.isAlive()==False:
+            if ReadSoc.isAlive()==False and WriteSoc.isAlive()==False:
                 soc = InitSocket()
                 ReadSoc = threading.Thread(target = readSocket)   
                 WriteSoc = threading.Thread(target = writeSocket)    
                 ReadSoc.start()
                 WriteSoc.start()
-            if WriteSer.isAlive() == False and WriteSer.isAlive()==False:
+            if WriteSer.isAlive()==False and WriteSer.isAlive()==False:
                 ser = InitSerial()
                 WriteSer = threading.Thread(target = writeSerial)
                 ReadSer = threading.Thread(target = readSerial)  
